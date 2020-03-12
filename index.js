@@ -1,6 +1,18 @@
 const uWS = require('uWebSockets.js'),
       { StringDecoder } = require('string_decoder'),
-      decoder = new StringDecoder('utf8')
+      decoder = new StringDecoder('utf8'),
+      fs = require('fs'),
+      http = require('http')
+
+http.createServer(null, function (req, res) {
+  const resource = '/index.html'
+  fs.readFile(`${__dirname}${resource}`, function (err, data) {
+    res.setHeader("Content-Type", 'text/html')
+    res.writeHead(200)
+    res.end(data)
+  })
+}).listen(8080)
+console.log('http server running on port 8080')
 
 const app = uWS.App()
 .ws('/*', {

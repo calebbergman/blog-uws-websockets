@@ -1,0 +1,36 @@
+<html>
+<head></head>
+
+<body>
+  <p>
+    Basic web page demonstrating creating a websocket connection, sending, listenting and responding to
+    websocket communications.
+  </p>
+  <p>
+    Clicking the 'ping' button below should result in a 'pong' response from the server.
+  </p>
+  <div>
+    <button onclick="ping()" value="ping">ping</button>
+    <div id="pong"></div>
+  </div>
+</body>
+
+<script>
+  const pong = document.querySelector('#pong')
+
+  const ws = new WebSocket('ws://localhost:9001')
+  ws.onmessage = function (packet) {
+    const { action, data } = JSON.parse(packet.data)
+    switch (action) {
+      case 'pong':
+        pong.innerHTML = data
+        break;
+    }
+  }
+
+  function ping() {
+    ws.send(JSON.stringify({ action: 'ping', data: 'pong' }))
+  }
+</script>
+
+</html>
