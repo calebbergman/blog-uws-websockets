@@ -2,12 +2,13 @@ const uWS = require('uWebSockets.js'),
       { StringDecoder } = require('string_decoder'),
       decoder = new StringDecoder('utf8'),
       fs = require('fs'),
-      http = require('http')
+      http = require('http'),
+      { getContentType } = require('./utils')
 
 http.createServer(null, function (req, res) {
-  const resource = '/index.html'
+  const resource = req.url === '/' ? '/index.html' : req.url
   fs.readFile(`${__dirname}${resource}`, function (err, data) {
-    res.setHeader("Content-Type", 'text/html')
+    res.setHeader("Content-Type", getContentType(resource))
     res.writeHead(200)
     res.end(data)
   })

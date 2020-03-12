@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/calebbergman/blog-uws-websockets/issues"
   },
-  "homepage": "https://github.com/calebbergman/blog-uws-websockets#readme"
+  "homepage": "https://github.com/calebbergman/blog-uws-websockets#readme",
+  "dependencies": {
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v17.3.0"
+  }
 }
