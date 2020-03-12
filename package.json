@@ -1,0 +1,24 @@
+{
+  "name": "blog-uws-websockets",
+  "version": "1.0.0",
+  "description": "Tutorial on getting a websocket server + client running using µWebSockets.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calebbergman/blog-uws-websockets.git"
+  },
+  "keywords": [
+    "websockets",
+    "uws",
+    "µWebSockets.js"
+  ],
+  "author": "Caleb Bergman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calebbergman/blog-uws-websockets/issues"
+  },
+  "homepage": "https://github.com/calebbergman/blog-uws-websockets#readme"
+}
