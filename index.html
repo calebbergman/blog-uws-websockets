@@ -17,7 +17,7 @@
       <button onclick="window.ws.emit('ping', 'pong')" value="ping">ping</button>
       <button onclick="window.ws.close()" value="ping">close</button>
     </div>
-    <div id="pong"></div>
+    <div id="pong-list"></div>
   </div>
 </body>
 
@@ -25,7 +25,9 @@
   // Import websocket client library
   import * as ws from './client.js'
 
-  const pong = document.querySelector('#pong')
+  const pongList = document.querySelector('#pong-list')
+  const colors = ['#5f9ea0', '#ac57d8', '#d85775', '#e026b8', '#ffaa2b']
+  let counter = 0
 
   // Register onOpen/onClose event handlers
   function onOpen() {
@@ -40,7 +42,10 @@
   // Register onMessage event handler
   ws.addMessage('pong', data => {
     console.log('pong!', data)
-    pong.innerHTML = data
+    const el = document.createElement('p')
+    el.innerText = data
+    el.style.color = colors[counter++ % colors.length]
+    pongList.appendChild(el)
   })
 
   // Connect to websocket server
