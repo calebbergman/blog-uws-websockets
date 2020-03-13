@@ -132,7 +132,7 @@ function close () {
   ws.close()
 }
 
-export default {
+export {
   connect,
   close,
   emit,
