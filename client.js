@@ -94,7 +94,9 @@ const sanitizeRegex = (action) => action.replace(/(\^|\$|\.|\?|\*|\+|\(|\)|\/)/g
 function connect(url) {
   if (!url) throw new Error('url is a required argument')
 
-  if (ws && ws.readyState === 1 /** open connection */)
+  // Ensure a single websocket connection exists
+  const existingOpenConnection = ws && ws.readyState === 1
+  if (existingOpenConnection)
     disconnect()
 
   ws = new WebSocket(url)
