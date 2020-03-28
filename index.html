@@ -7,15 +7,23 @@
     websocket communications.
   </p>
   <p>
-    Clicking the 'ping' button below should result in a 'pong' response from the server.
+    Clicking the 'ping' button should result in a 'pong' response from the server.
   </p>
   <p>
-    Clicking the 'close' button below should close the websocket connection, which should then automatically reconnect.
+    Clicking the 'close' button should close the websocket connection, which should then automatically reconnect.
+  </p>
+  <p>
+    Clicking the 'disconnect' button should terminate the websocket connection without reconnecting.
+  </p>
+  <p>
+    Clicking the 'open' button should disconnect an existing connection to the websocket server (if it exists) and open a new connection.
   </p>
   <div>
     <div>
       <button onclick="window.ws.emit('ping', 'pong')" value="ping">ping</button>
-      <button onclick="window.ws.close()" value="ping">close</button>
+      <button onclick="window.ws.close()">close</button>
+      <button onclick="window.ws.disconnect()">disconnect</button>
+      <button onclick="connectWs()">connect</button>
     </div>
     <div id="pong-list"></div>
   </div>
@@ -35,7 +43,10 @@
     console.log('Sending ping...')
     ws.emit('ping', 'pong')
   }
-  function onClose() { console.log('Websocket connection closed!') }
+  function onClose() {
+    console.log('Websocket connection closed!')
+    pongList.innerHTML = ''
+  }
   ws.addOnOpen(onOpen)
   ws.addOnClose(onClose)
 
@@ -47,12 +58,17 @@
     el.style.color = colors[counter++ % colors.length]
     pongList.appendChild(el)
   })
-
-  // Connect to websocket server
-  ws.connect('ws://localhost:9001')
-
+  
   // Place websocket object on window to play with in console
   window.ws = ws
+</script>
+
+<script>
+  // Connect to websocket server
+  function connectWs() {
+    window.ws.connect('ws://localhost:9001')
+  }
+  document.addEventListener('DOMContentLoaded', connectWs)
 </script>
 
 </html>
