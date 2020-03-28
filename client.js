@@ -20,38 +20,42 @@ const emit = (action, data) => ws.send(JSON.stringify({ action, data }))
 /**
  * Functions to run when messages are received from the websocket server
 */
-const onMessages = new Set()
+const onMessages = []
+
 /**
- * Register an onMessage function
+ * Register an onMessage function. Guard against duplicates.
  * @param {!string} action - action name
  * @param {!Function} fn - function to execute
  */
-const addMessage = (action, fn) => onMessages.add({ action, fn })
-/**
- * Unregister an onMessage function
-*/
-const delMessage = (action) => {
-  const existing = [...onMessages].find(m => m.action === action)
-  if (existing)
-    onMessages.delete(existing)
+const addMessage = (action, fn) => {
+  const exists = onMessages.find(m => m.action === action && m.fn === fn)
+  if (!exists)
+    onMessages.push({ action, fn })
 }
+
+/**
+ * Unregister onMessage functions
+*/
+const delMessage = (fn) => { onMessages = onMessages.filter(m => m.fn !== fn) }
 
 /**
  * Functions to run when a connection is established with the websocket server
 */
 const onOpen = []
+
 /**
- * Register an onOpen function
+ * Register an onOpen function. Guard against duplicates.
 */
-const addOnOpen = (fn) => onOpen.push(fn)
+const addOnOpen = (fn) => {
+  const exists = onOpen.find(fn)
+  if (!exists)
+    onOpen.push(fn)
+}
+
 /**
  * Unregister an onOpen function
 */
-const delOnOpen = (fn) => {
-  const index = onOpen.indexOf(fn)
-  if (index >= 0)
-    onOpen.splice(index, 1)
-}
+const delOnOpen = (fn) => { onOpen = onOpen.filter(o => o !== fn) }
 
 /**
  * Functions to run when a connection is lost to the websocket server
@@ -60,15 +64,16 @@ const onClose = []
 /**
  * Register an onClose function
 */
-const addOnClose = (fn) => onClose.push(fn)
+const addOnClose = (fn) => {
+  const exists = onClose.find(fn)
+  if (!exists)
+    onClose.push(fn)
+}
+
 /**
  * Unregister an onClose function
 */
-const delOnClose = (fn) => {
-  const index = onClose.indexOf(fn)
-  if (index >= 0)
-    onClose.splice(index, 1)
-}
+const delOnClose = (fn) => { onClose = onClose.filter(o => o !== fn) }
 
 // Helper for wrapping a function in a try/catch block
 function tryCatch(fn) {
@@ -98,7 +103,7 @@ function connect(url) {
     retries = 0
 
     // Keeps the TCP connection alive. Otherwise it times out every 2 minutes
-    keepAlive = setInterval(() => emit('keep-alive'), 60000)
+    keepAlive = setInterval(() => { emit('keep-alive') }, 60000)
 
     onOpen.forEach(fn => tryCatch(fn))
   }
@@ -120,14 +125,16 @@ function connect(url) {
   ws.onmessage = (packet) => {
     const { action, data } = JSON.parse(packet.data)
     const regex = new RegExp(`^${sanitizeRegex(action)}$`, 'gi')
-    const { fn } = [...onMessages].find(m => m.action.match(regex)) || {}
-    if (fn)
-      tryCatch(fn.bind(null, data))
-    else
-      console.warn(`No registered onMessage function for action '${action}'`)
+    const messages = onMessages.filter(m => m.action.match(regex))
+    messages.forEach(m => { tryCatch(m.fn.bind(null, data)) })
+    if (!messages.length)
+      console.warn(`No registered onMessage handlers for action '${action}'`)
   }
 }
 
+/**
+ * Manually close the websocket connection to test reconnection strategy
+*/
 function close () {
   ws.close()
 }
