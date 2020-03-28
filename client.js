@@ -94,6 +94,9 @@ const sanitizeRegex = (action) => action.replace(/(\^|\$|\.|\?|\*|\+|\(|\)|\/)/g
 function connect(url) {
   if (!url) throw new Error('url is a required argument')
 
+  if (ws && ws.readyState === 1 /** open connection */)
+    disconnect()
+
   ws = new WebSocket(url)
 
   ws.binaryType = 'arraybuffer'
@@ -109,16 +112,15 @@ function connect(url) {
   }
 
   // Called when a connection has been closed
-  ws.onclose = () => {
+  ws.onclose = (event) => {
     clearInterval(keepAlive)
 
     // Auto-reconnect indefinitely
-    if (!ws.forceClose)
+    // "event.target" will be the closing websocket, whereas "ws" could be a new websocket created in connect(url)
+    if (!event.target.forceClose)
       setTimeout(connect.bind(null, url), Math.min(exponentialBackoff(), MAX_WAIT_TIME))
 
     onClose.forEach(fn => tryCatch(fn))
-
-    ws = null
   }
 
   // Called when a message is received from the server
@@ -139,8 +141,18 @@ function close () {
   ws.close()
 }
 
+/**
+ * Force-terminate the websocket connection without auto-reconnecting
+ * Will require explicitly calling connect(url) again to re-open
+ */
+function disconnect() {
+  ws.forceClose = true
+  ws.close()
+}
+
 export {
   connect,
+  disconnect,
   close,
   emit,
   addOnOpen,
