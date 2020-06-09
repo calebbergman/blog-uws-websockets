@@ -20,7 +20,7 @@ const emit = (action, data) => ws.send(JSON.stringify({ action, data }))
 /**
  * Functions to run when messages are received from the websocket server
 */
-const onMessages = []
+let onMessages = []
 
 /**
  * Register an onMessage function. Guard against duplicates.
@@ -41,7 +41,7 @@ const delMessage = (fn) => { onMessages = onMessages.filter(m => m.fn !== fn) }
 /**
  * Functions to run when a connection is established with the websocket server
 */
-const onOpen = []
+let onOpen = []
 
 /**
  * Register an onOpen function. Guard against duplicates.
@@ -60,7 +60,7 @@ const delOnOpen = (fn) => { onOpen = onOpen.filter(o => o !== fn) }
 /**
  * Functions to run when a connection is lost to the websocket server
 */
-const onClose = []
+let onClose = []
 /**
  * Register an onClose function
 */
